@@ -1,1 +1,5 @@
-# BACNet-IT-Stack-usage-for-performance-evaluation-of-secured-websockets
+# BACnet/IT Application Service Element
+
+This repository contains the BACnet/IT communication stack.
+
+See the GitHub Page under https://fhnw-bacnet-it.github.io to get a tutorial on how to use it.

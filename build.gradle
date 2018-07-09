@@ -1,0 +1,103 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
+apply plugin: 'checkstyle'
+apply plugin: 'findbugs'
+apply plugin: 'jacoco'
+
+
+// configuration of the generated JAR package
+jar {
+    manifest {
+        attributes("Implementation-Title": "BACnet/IT Application Service Element",
+                   "Implementation-Version": version)
+    }
+}
+
+// Maven repositories to look for dependencies
+repositories {
+    mavenLocal()
+    jcenter()
+}
+
+// the project dependencies
+dependencies {
+    compile 'com.google.guava:guava:18.0'
+    compile 'commons-configuration:commons-configuration:1.10'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.0.2'
+    testCompile 'junit:junit:4.12'
+}
+
+// dependencies of build task
+build.dependsOn jacocoTestReport
+
+// test tasks
+test {
+    ignoreFailures = false
+    reports {
+        junitXml.enabled = true
+        html.enabled = true
+    }
+}
+
+checkstyle {
+    toolVersion = '7.5.1'
+}
+
+findbugs {
+    ignoreFailures = 'true'
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        csv.enabled = false
+        html.enabled = true
+    }
+}
+
+tasks.withType(Checkstyle) {
+    reports {
+        xml.enabled true
+        html.enabled true
+    }
+}
+
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled false
+        html.enabled true
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    from javadoc.destinationDir
+}
+
+// generate a Gradle wrapper
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.5'
+}
+
+// install into Maven repository
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = 'ch.fhnw.bacnet-it'
+            artifactId = project.name
+            version = project.version
+            from components.java
+
+            artifact sourcesJar {
+                classifier = 'sources'
+            }
+            artifact javadocJar {
+                classifier = 'javadoc'
+            }
+        }
+    }
+}
