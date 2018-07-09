@@ -2,9 +2,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.ByteBuffer;
-import java.util.LinkedList;
-import java.util.List;
 
 import com.google.common.math.BigIntegerMath;
 
@@ -30,16 +27,14 @@ import ch.fhnw.bacnetit.samplesandtests.api.deviceobjects.BACnetObjectIdentifier
 import ch.fhnw.bacnetit.samplesandtests.api.deviceobjects.BACnetObjectType;
 import ch.fhnw.bacnetit.samplesandtests.api.deviceobjects.BACnetPropertyIdentifier;
 import ch.fhnw.bacnetit.samplesandtests.api.encoding.asdu.ASDU;
+import ch.fhnw.bacnetit.samplesandtests.api.encoding.asdu.ComplexACK;
 import ch.fhnw.bacnetit.samplesandtests.api.encoding.asdu.ConfirmedRequest;
 import ch.fhnw.bacnetit.samplesandtests.api.encoding.asdu.UnconfirmedRequest;
 import ch.fhnw.bacnetit.samplesandtests.api.encoding.type.primitive.OctetString;
-import ch.fhnw.bacnetit.samplesandtests.api.encoding.type.primitive.Real;
 import ch.fhnw.bacnetit.samplesandtests.api.encoding.type.primitive.UnsignedInteger;
 import ch.fhnw.bacnetit.samplesandtests.api.encoding.util.ByteQueue;
-import ch.fhnw.bacnetit.samplesandtests.api.service.acknowledgment.ReadPropertyAck;
-import ch.fhnw.bacnetit.samplesandtests.api.service.confirmed.ReadPropertyRequest;
 import ch.fhnw.bacnetit.samplesandtests.api.service.confirmed.WritePropertyRequest;
-import ch.fhnw.bacnetit.samplesandtests.api.service.unconfirmed.IAmRequest;
+import ch.fhnw.bacnetit.samplesandtests.api.service.unconfirmed.WhoIsRequest;
 import ch.fhnw.bacnetit.transportbinding.api.BindingConfiguration;
 import ch.fhnw.bacnetit.transportbinding.api.ConnectionFactory;
 import ch.fhnw.bacnetit.transportbinding.api.TransportBindingInitializer;
@@ -48,18 +43,18 @@ import ch.fhnw.bacnetit.transportbinding.ws.incoming.tls.api.WSSConnectionServer
 import ch.fhnw.bacnetit.transportbinding.ws.outgoing.api.*;
 import ch.fhnw.bacnetit.transportbinding.ws.outgoing.tls.api.WSSConnectionClientFactory;
 
-public class Pradeep_Application extends MessageExchanges {
+public class Pradeep_Application extends MessageExchanges{
 	
-	private static final int WSS_PORT = 8080;
+	private static final int WSS_PORT = 9090;
 	private static final String WSS_SCHEME = "wss";
-	private static final int serverID = 1001;
-	private static final int clientID = 1002;
+	private static final int serverID = 2001;
+	private static final int clientID = 2002;
 	private static BACnetEID serverEID = new BACnetEID(serverID);
 	private static BACnetEID clientEID = new BACnetEID(clientID);
-	static int resource = 100;
-	static int temp_resource = 0;
 	
 	static ASEServices aseService = ChannelFactory.getInstance();
+	String Me = "wss://localhost:9090";
+	String Friend = "wss://localhost:8080";
 	
 	/*A function to convert integer to a byte array*/
 	private static byte[] encode(int i) {
@@ -69,10 +64,10 @@ public class Pradeep_Application extends MessageExchanges {
 	}
 	/*A function to convert integer to a byte array*/
 
-	public static void mainfun() throws URISyntaxException{	
+	public void mainfun() throws URISyntaxException {
 		
-		final URI MyDevice = new URI("wss://localhost:8080");
-		final URI FriendDevice = new URI("wss://localhost:9090");
+		final URI MyDevice = new URI(Me);
+		final URI FriendDevice = new URI(Friend);
 		
 		/*Keys and trust certificates for Secure web sockets*/
     	final KeystoreConfig keystoreConfig = new KeystoreConfig(
@@ -82,12 +77,14 @@ public class Pradeep_Application extends MessageExchanges {
                 "dummyKeystores/trustStore.jks", "123456", "installer.ch",
                 "installer.net");
         /*Keys and trust certificates for Secure web sockets*/
-        start();        
+        
+        start();
+        
 	}
 	
 	public static void start() {
 		ChannelConfiguration channelConfiguration = aseService;
-				
+		
 		/*Keys and trust certificates for Secure web sockets*/
     	final KeystoreConfig keystoreConfig = new KeystoreConfig(
                 "dummyKeystores/keyStoreDev1.jks", "123456",
@@ -122,65 +119,45 @@ public class Pradeep_Application extends MessageExchanges {
             e1.printStackTrace();
         }
 		
-		channelConfiguration.setEntityListener(new BACnetEntityListener() {
-
+channelConfiguration.setEntityListener(new BACnetEntityListener() {
+			
 			@Override
 			public void onRemoteRemove(BACnetEID arg0) {
-
+				// TODO Auto-generated method stub
+				
 			}
-
+			
 			@Override
 			public void onRemoteAdded(BACnetEID eid, URI uri) {
 				DirectoryService.getInstance().register(eid, uri, false, true);
-
+				
 			}
-
+			
 			@Override
 			public void onLocalRequested(BACnetEID arg0) {
-
+				// TODO Auto-generated method stub
+				
 			}
 		});
 
-		ChannelListener bacnetDevice1001 = new ChannelListener(serverEID) {
+	ChannelListener bacnetDevice2001 = new ChannelListener(clientEID) {
 
 			@Override
 			public void onIndication(T_UnitDataIndication arg0, Object arg1) {
 				
-				System.out.println("Pradeep got an indication");
+				System.out.println("Application1 got an indication");
                 // Parse the incoming message
                 ASDU incoming = getServiceFromBody(arg0.getData().getBody());
-                
-                if (incoming instanceof ConfirmedRequest && ((ConfirmedRequest) incoming)
-                        .getServiceRequest() instanceof ReadPropertyRequest) {
-                    System.out.println("Pradeep got a ReadPropertyRequest");
 
-                    // Prepare DUMMY answer
-                    final ByteQueue byteQueue = new ByteQueue();
-                    new ReadPropertyAck(
-                            new BACnetObjectIdentifier(
-                                    BACnetObjectType.analogValue, 1),
-                            BACnetPropertyIdentifier.presentValue,
-                            new UnsignedInteger(1), new Real(resource))
-                                    .write(byteQueue);
-                    // Send answer
-                    try {
-                        System.out.println("Pradeep sends an ReadPropertyAck");
-                        sendBACnetMessage(aseService,new URI("wss://localhost:9090"),clientEID,new BACnetEID(2002),byteQueue.popAll());
-                    } catch (URISyntaxException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                } // Handling of a WritePropertyAck
-                else if (incoming instanceof ConfirmedRequest
-						&& ((ConfirmedRequest) incoming).getServiceRequest() instanceof WritePropertyRequest) {
-                	System.out.println("Pradeep has recieved a WritePropertyRequest");
-					// read the message from the request
-					ByteQueue byteQueue = new ByteQueue(arg0.getData().getBody());
-					byte msg = byteQueue.peek(17);
-					temp_resource = msg;
-					resource = temp_resource;
-				}
-                
+                // Dummy Handling of a ReadPropertyAck
+                if (incoming instanceof ComplexACK) {
+                    System.out.println(
+                            "Application1 got an indication - ReadPropertyAck");
+                    System.out.println("************\nReceived Value: "
+                            + ((ComplexACK) incoming).getService().toString()
+                                    .split("\\(")[1].split("\\)")[0]
+                            + "\n************");
+                }
 			}
 
 			@Override
@@ -188,7 +165,8 @@ public class Pradeep_Application extends MessageExchanges {
 
 			}
 		};
-		ChannelListener bacnetDevice1002 = new ChannelListener(clientEID){
+		
+		ChannelListener bacnetDevice2002 = new ChannelListener(serverEID) {
 
 			@Override
 			public void onIndication(T_UnitDataIndication tUnitDataIndication, Object context) {
@@ -203,10 +181,68 @@ public class Pradeep_Application extends MessageExchanges {
 			}
 			
 		};
-		channelConfiguration.registerChannelListener(bacnetDevice1002);
-		channelConfiguration.registerChannelListener(bacnetDevice1001);
+		channelConfiguration.registerChannelListener(bacnetDevice2002);
+		channelConfiguration.registerChannelListener(bacnetDevice2001);
 		
-        devices.add(bacnetDevice1001);
-        devices.add(bacnetDevice1002);
+		devices.add(bacnetDevice2001);
+		devices.add(bacnetDevice2002);;
+	}
+	
+	public void afterShow(int data) throws URISyntaxException {
+			final URI MyDevice = new URI(Me);
+			final URI FriendDevice = new URI(Friend);
+		 System.out.println("Pradeep sends a WritePropRequest to Pradeep");
+	        byte[] bytes = encode(data);
+	        sendWritePropertyRequest(aseService,FriendDevice, clientEID, new BACnetEID(1001),bytes);
+	        try {
+	            Thread.sleep(2000);
+	        } catch (InterruptedException e1) {
+	            // TODO Auto-generated catch block
+	            e1.printStackTrace();
+	        }
+	        try {
+	            System.out.println("Pradeep sends a ReadPropRequest to Pradeep");
+	            sendReadPropertyRequestUsingBACnet4j(aseService, FriendDevice, clientEID,new BACnetEID(1001));
+	        	} catch (Exception e) {
+	            System.err.print(e);
+	        }
+
+	        try {
+	            Thread.sleep(2000);
+	        } catch (InterruptedException e1) {
+	            // TODO Auto-generated catch block
+	            e1.printStackTrace();
+	        }
+	}
+	public void read() throws URISyntaxException {
+		final URI MyDevice = new URI(Me);
+		final URI FriendDevice = new URI(Friend);
+		try {
+            System.out.println("Pradeep sends a ReadPropRequest to Pradeep");
+            sendReadPropertyRequestUsingBACnet4j(aseService, FriendDevice, clientEID,new BACnetEID(1001));
+        	} catch (Exception e) {
+            System.err.print(e);
+        }
+
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+	}
+	
+	public void write(int data) throws URISyntaxException {
+		final URI MyDevice = new URI(Me);
+		final URI FriendDevice = new URI(Friend);
+	 System.out.println("Pradeep sends a WritePropRequest to Pradeep");
+        byte[] bytes = encode(data);
+        sendWritePropertyRequest(aseService,FriendDevice, clientEID, new BACnetEID(1001),bytes);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
 	}
 }
