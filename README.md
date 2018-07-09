@@ -2,4 +2,4 @@
 
 This repository contains the BACnet/IT communication stack.
 
-See the GitHub Page under https://fhnw-bacnet-it.github.io to get a tutorial on how to use it.
+The stack from https://fhnw-bacnet-it.github.io was used and updated as per our applicaiton.
