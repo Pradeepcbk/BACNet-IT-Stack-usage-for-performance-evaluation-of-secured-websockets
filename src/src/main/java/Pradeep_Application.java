@@ -46,9 +46,8 @@ import ch.fhnw.bacnetit.transportbinding.ws.outgoing.tls.api.WSSConnectionClient
 public class Pradeep_Application extends MessageExchanges{
 	
 	private static final int WSS_PORT = 9090;
-	private static final String WSS_SCHEME = "wss";
-	private static final int serverID = 2001;
-	private static final int clientID = 2002;
+	private static final int serverID = 1;
+	private static final int clientID = 2;
 	private static BACnetEID serverEID = new BACnetEID(serverID);
 	private static BACnetEID clientEID = new BACnetEID(clientID);
 	
@@ -64,10 +63,7 @@ public class Pradeep_Application extends MessageExchanges{
 	}
 	/*A function to convert integer to a byte array*/
 
-	public void mainfun() throws URISyntaxException {
-		
-		final URI MyDevice = new URI(Me);
-		final URI FriendDevice = new URI(Friend);
+	public void mainfun(){
 		
 		/*Keys and trust certificates for Secure web sockets*/
     	final KeystoreConfig keystoreConfig = new KeystoreConfig(
@@ -140,7 +136,7 @@ channelConfiguration.setEntityListener(new BACnetEntityListener() {
 			}
 		});
 
-	ChannelListener bacnetDevice2001 = new ChannelListener(clientEID) {
+	ChannelListener bacnetDevice2 = new ChannelListener(clientEID) {
 
 			@Override
 			public void onIndication(T_UnitDataIndication arg0, Object arg1) {
@@ -166,7 +162,7 @@ channelConfiguration.setEntityListener(new BACnetEntityListener() {
 			}
 		};
 		
-		ChannelListener bacnetDevice2002 = new ChannelListener(serverEID) {
+		ChannelListener bacnetDevice1 = new ChannelListener(serverEID) {
 
 			@Override
 			public void onIndication(T_UnitDataIndication tUnitDataIndication, Object context) {
@@ -181,19 +177,19 @@ channelConfiguration.setEntityListener(new BACnetEntityListener() {
 			}
 			
 		};
-		channelConfiguration.registerChannelListener(bacnetDevice2002);
-		channelConfiguration.registerChannelListener(bacnetDevice2001);
+		channelConfiguration.registerChannelListener(bacnetDevice1);
+		channelConfiguration.registerChannelListener(bacnetDevice2);
 		
-		devices.add(bacnetDevice2001);
-		devices.add(bacnetDevice2002);;
+		devices.add(bacnetDevice1);
+		devices.add(bacnetDevice2);;
 	}
 	
 	public void afterShow(int data) throws URISyntaxException {
 			final URI MyDevice = new URI(Me);
 			final URI FriendDevice = new URI(Friend);
-		 System.out.println("Pradeep sends a WritePropRequest to Pradeep");
+		 System.out.println("Pradeep sends a WritePropRequest");
 	        byte[] bytes = encode(data);
-	        sendWritePropertyRequest(aseService,FriendDevice, clientEID, new BACnetEID(1001),bytes);
+	        sendWritePropertyRequest(aseService,FriendDevice, clientEID, new BACnetEID(3),bytes);
 	        try {
 	            Thread.sleep(2000);
 	        } catch (InterruptedException e1) {
@@ -201,8 +197,8 @@ channelConfiguration.setEntityListener(new BACnetEntityListener() {
 	            e1.printStackTrace();
 	        }
 	        try {
-	            System.out.println("Pradeep sends a ReadPropRequest to Pradeep");
-	            sendReadPropertyRequestUsingBACnet4j(aseService, FriendDevice, clientEID,new BACnetEID(1001));
+	            System.out.println("Pradeep sends a ReadPropRequest");
+	            sendReadPropertyRequestUsingBACnet4j(aseService, FriendDevice, clientEID,new BACnetEID(3));
 	        	} catch (Exception e) {
 	            System.err.print(e);
 	        }
@@ -218,8 +214,8 @@ channelConfiguration.setEntityListener(new BACnetEntityListener() {
 		final URI MyDevice = new URI(Me);
 		final URI FriendDevice = new URI(Friend);
 		try {
-            System.out.println("Pradeep sends a ReadPropRequest to Pradeep");
-            sendReadPropertyRequestUsingBACnet4j(aseService, FriendDevice, clientEID,new BACnetEID(1001));
+            System.out.println("Pradeep sends a ReadPropRequest");
+            sendReadPropertyRequestUsingBACnet4j(aseService, FriendDevice, clientEID,new BACnetEID(3));
         	} catch (Exception e) {
             System.err.print(e);
         }
@@ -235,9 +231,9 @@ channelConfiguration.setEntityListener(new BACnetEntityListener() {
 	public void write(int data) throws URISyntaxException {
 		final URI MyDevice = new URI(Me);
 		final URI FriendDevice = new URI(Friend);
-	 System.out.println("Pradeep sends a WritePropRequest to Pradeep");
+	 System.out.println("Pradeep sends a WritePropRequest");
         byte[] bytes = encode(data);
-        sendWritePropertyRequest(aseService,FriendDevice, clientEID, new BACnetEID(1001),bytes);
+        sendWritePropertyRequest(aseService,FriendDevice, clientEID, new BACnetEID(3),bytes);
         try {
             Thread.sleep(2000);
         } catch (InterruptedException e1) {

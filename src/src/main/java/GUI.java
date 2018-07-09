@@ -16,27 +16,33 @@ public class GUI extends JFrame implements ActionListener {
 	
 	Pradeep_Application obj = new Pradeep_Application();
 	public GUI() {
-		setLayout(new FlowLayout(1));
+		JFrame frame = new JFrame();
+		JPanel panel1 = new JPanel();
+		JPanel panel2 = new JPanel();
+		frame.setLayout(new FlowLayout());
 		write = new JLabel("Enter the value to write");
-		add(write);
+		panel1.add(write);
 		
-		data = new JTextField(0);
+		data = new JTextField(10);
 		data.setEditable(true);
-		add(data);
+		panel1.add(data);
 		
 		btnread = new JButton("Read Property");
 		btnwrite = new JButton("Write Property");
-		add(btnread);
-		add(btnwrite);
+		panel2.add(btnread);
+		panel2.add(btnwrite);
 		
 		btnread.addActionListener(this);
 		btnwrite.addActionListener(this);
 		
-		setLocationRelativeTo(null);
-		setDefaultCloseOperation(EXIT_ON_CLOSE);
-		setTitle("BACnet IT Device");
-		setSize(300, 200);
-		setVisible(true);
+		frame.add(panel1);
+		frame.add(panel2);
+		frame.pack();
+		frame.setLocationRelativeTo(null);
+		frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		frame.setTitle("BACnet IT Device");
+		frame.setSize(300, 150);
+		frame.setVisible(true);
 	
 	}
 

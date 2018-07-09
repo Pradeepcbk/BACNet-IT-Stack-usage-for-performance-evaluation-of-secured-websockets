@@ -51,9 +51,8 @@ import ch.fhnw.bacnetit.transportbinding.ws.outgoing.tls.api.WSSConnectionClient
 public class Preetham_Application extends MessageExchanges {
 	
 	private static final int WSS_PORT = 8080;
-	private static final String WSS_SCHEME = "wss";
-	private static final int serverID = 1001;
-	private static final int clientID = 1002;
+	private static final int serverID = 3;
+	private static final int clientID = 4;
 	private static BACnetEID serverEID = new BACnetEID(serverID);
 	private static BACnetEID clientEID = new BACnetEID(clientID);
 	static int resource = 100;
@@ -69,10 +68,7 @@ public class Preetham_Application extends MessageExchanges {
 	}
 	/*A function to convert integer to a byte array*/
 
-	public static void mainfun() throws URISyntaxException{	
-		
-		final URI MyDevice = new URI("wss://localhost:8080");
-		final URI FriendDevice = new URI("wss://localhost:9090");
+	public static void mainfun() {	
 		
 		/*Keys and trust certificates for Secure web sockets*/
     	final KeystoreConfig keystoreConfig = new KeystoreConfig(
@@ -141,7 +137,7 @@ public class Preetham_Application extends MessageExchanges {
 			}
 		});
 
-		ChannelListener bacnetDevice1001 = new ChannelListener(serverEID) {
+		ChannelListener bacnetDevice3 = new ChannelListener(serverEID) {
 
 			@Override
 			public void onIndication(T_UnitDataIndication arg0, Object arg1) {
@@ -165,7 +161,7 @@ public class Preetham_Application extends MessageExchanges {
                     // Send answer
                     try {
                         System.out.println("Preetham sends the ReadPropertyAck");
-                        sendBACnetMessage(aseService,new URI("wss://localhost:9090"),clientEID,new BACnetEID(2002),byteQueue.popAll());
+                        sendBACnetMessage(aseService,new URI("wss://localhost:9090"),clientEID,new BACnetEID(2),byteQueue.popAll());
                     } catch (URISyntaxException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
@@ -188,7 +184,7 @@ public class Preetham_Application extends MessageExchanges {
 
 			}
 		};
-		ChannelListener bacnetDevice1002 = new ChannelListener(clientEID){
+		ChannelListener bacnetDevice4 = new ChannelListener(clientEID){
 
 			@Override
 			public void onIndication(T_UnitDataIndication tUnitDataIndication, Object context) {
@@ -203,10 +199,10 @@ public class Preetham_Application extends MessageExchanges {
 			}
 			
 		};
-		channelConfiguration.registerChannelListener(bacnetDevice1002);
-		channelConfiguration.registerChannelListener(bacnetDevice1001);
+		channelConfiguration.registerChannelListener(bacnetDevice3);
+		channelConfiguration.registerChannelListener(bacnetDevice4);
 		
-        devices.add(bacnetDevice1001);
-        devices.add(bacnetDevice1002);
+        devices.add(bacnetDevice3);
+        devices.add(bacnetDevice4);
 	}
 }
